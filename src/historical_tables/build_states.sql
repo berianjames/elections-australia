@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS elections_australia.states;
 CREATE TABLE elections_australia.states ( 
    code VARCHAR(3) NOT NULL PRIMARY KEY,
-   name VARCHAR(30),
+   state_name VARCHAR(30),
 --   created_at DATE,
 --   first_election_id INT,
    is_territory BOOLEAN
