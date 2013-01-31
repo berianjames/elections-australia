@@ -28,8 +28,10 @@ The <code>elections</code> table details each election since federation, with th
 <table>
 	<!--<tr><td></td><td></td></tr>-->
 	<tr><td>id</td><td>primary key, election id</td></tr>
-	<tr><td>level</td><td>type of election: federal, state or (state) by-election</td></tr>
+	<tr><td>level</td><td>type of election: federal or state</td></tr>
+	<tr><td>chamber</td><td>chamber: House of Representative, Senate, Legislative Assembly or Legislative Council</td>
 	<tr><td>date</td><td>date of election</td></tr>
+	<tr><td>is_byelection</td><td>binary, is the election a by-election</td></tr>
 </table>
 
 ### states
@@ -39,9 +41,9 @@ The Australian commonwealth is broken in six states and two territories. Federal
 <table>
 	<!--<tr><td></td><td></td></tr>-->
 	<tr><td>code</td><td>primary key, acronym for state/territory (UPPER CASE)</td></tr>
-	<tr><td>name</td><td>common name of state/territory (First Upper Case)</td></tr>
-	<tr><td>created_at</td><td>date of federation</td></tr>
-	<tr><td>first_election_id</td><td>ID of first federal election in which state/territory</td></tr>
+	<tr><td>state_name</td><td>common name of state/territory (First Upper Case)</td></tr>
+	<!--<tr><td>created_at</td><td>date of federation</td></tr>-->
+	<!--<tr><td>first_election_id</td><td>ID of first federal election in which state/territory</td></tr>-->
 	<tr><td>is_territory</td><td>Binary flag dividing states and territories</td></tr>
 </table>
 
@@ -53,11 +55,11 @@ The <code>electorates</code> table details every electoral division involved in 
 	<!--<tr><td></td><td></td></tr>-->
 	<tr><td>id</td><td>primary key, electorate id</td></tr>
 	<tr><td>election_id</td><td>election id</td></tr>
-	<tr><td>name</td><td>elecorate name</td></tr>
-	<tr><td>state_id</td><td>ID of electorate state/territory</td></tr>
+	<tr><td>electorate_name</td><td>elecorate name</td></tr>
+	<tr><td>state_code</td><td>ID of electorate state/territory</td></tr>
 	<tr><td>enrollments</td><td>electoral roll count at time of election</td></tr>
 	<tr><td>ballots</td><td>ballots cast within electorate at election</td></tr>
-	<tr><td>informal</td><td>informal ballots cast within electorate at election</td></tr>
+	<!--<tr><td>informal</td><td>informal ballots cast within electorate at election</td></tr>-->
 </table>
 
 
