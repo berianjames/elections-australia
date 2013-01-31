@@ -1,4 +1,5 @@
 import sys
+import os
 import urllib
 from bs4 import BeautifulSoup
 
@@ -29,6 +30,9 @@ class PsephScraper(object):
     sublinks = []
     for sublink in sublinks_divisions:
       rel_href = sublink.attrs['href']
+      # Catch website typo for West Sydney
+      if 'wysd.txt' in rel_href:
+        rel_href = rel_href.replace('wysd.txt','wsyd.txt')
       sublinks.append(self.base_site + self.ext_folder + rel_href.split('/')[-1])
     return sublinks
 
@@ -37,7 +41,8 @@ class PsephScraper(object):
     for sublink in sublinks:
       outfile = 'australia/' + self.ext_folder +sublink.split('/')[-1]
       print sublink, outfile
-      urllib.urlretrieve(sublink, filename=outfile)
+      if not os.path.isfile(outfile):
+        urllib.urlretrieve(sublink, filename=outfile)
 
 
 def main(argv):
