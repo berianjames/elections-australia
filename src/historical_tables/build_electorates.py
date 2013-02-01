@@ -62,8 +62,8 @@ class ElectoratesTableBuilder(object):
      CREATE TABLE electorates (
        id INT NOT NULL AUTO_INCREMENT,
        election_id INT,
-       electorate_name VARCHAR(30),
        state_code VARCHAR(3),
+       electorate_name VARCHAR(30),
        enrollments INT,
        ballots INT,
        PRIMARY KEY(id)
@@ -93,9 +93,9 @@ class ElectoratesTableBuilder(object):
         else:
           electorate_ballots = "NULL"
         sql = """
-          INSERT INTO electorates (election_id, electorate_name, state_code, enrollments, ballots)
-          VALUES (%d, "%s", '%s', %d, %s)
-        """ % (election_id, electorate_name, state_code, electorate_enrolled, electorate_ballots)
+          INSERT INTO electorates (election_id, state_code, electorate_name, enrollments, ballots)
+          VALUES (%d, '%s', "%s", %d, %s)
+        """ % (election_id, state_code, electorate_name, electorate_enrolled, electorate_ballots)
         self.db.execute(sql)
           
 
