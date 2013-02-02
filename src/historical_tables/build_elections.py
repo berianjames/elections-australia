@@ -53,7 +53,7 @@ class ElectionsTableBuilder(object):
         election_day = '29'
       election_date_str = ' '.join([election_day, election_month, election_year])
       sql = """
-        INSERT INTO elections (level, chamber, election_date)
+        INSERT INTO elections (level, chamber, election_date, is_byelection)
         VALUES ('%s', '%s', STR_TO_DATE('%s', '%%d %%M %%Y'), %d)
       """ % ('federal', chamber, election_date_str, 0)
       self.db.execute(sql)
