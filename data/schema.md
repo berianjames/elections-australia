@@ -69,7 +69,9 @@ The <code>parties</code> table list all parties that have participated in state 
 <table>
 	<!--<tr><td></td><td></td></tr>-->
 	<tr><td>id</td><td>primary key, party id</td></tr>
-	<tr><td>name</td><td>party name</td></tr>
+	<tr><td>party_code</td><td>party short code</td></tr>
+	<tr><td>party_name</td><td>party long name</td></tr>
+	<tr><td>party_code_alt</td><td>alternate party short code</td></tr>
 </table>
 
 
