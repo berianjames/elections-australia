@@ -82,8 +82,8 @@ The <code>candidates</code> lists every person every to run for office in an Aus
 	<!--<tr><td></td><td></td></tr>-->
 	<tr><td>id</td><td>primary key, candidate id</td></tr>
 	<tr><td>election_id</td><td>election id</td></tr>
-	<tr><td>name</td><td>candidate name</td></tr>
 	<tr><td>party_id</td><td>ID of candidate's electoral party</td></tr>
+	<tr><td>candidate_name</td><td>candidate name</td></tr>
 </table>
 
 
