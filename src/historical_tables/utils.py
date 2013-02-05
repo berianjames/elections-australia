@@ -28,7 +28,7 @@ def get_election_files(base_dir, years, chamber, states=None):
           txtfile = 'senate' + state + '.txt'
         fname = base_dir + year + '/' + year + txtfile
         if os.path.isfile(fname):
-          election_files.append([fname, state, year])
+          election_files.append([fname, state, year, chamber])
   return election_files
 
 
