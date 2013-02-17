@@ -69,43 +69,98 @@ class CandidatesTableBuilder(object):
     return candidate_index_raw
 
 
-  def cross_reference(self, candidate_index_raw):
-    index = []
+  def _re_parse_index_entry(self, entry):
+    index_content = list()
+    g = re.search('>\s(.+, .+ \(.+, .+\)):\s(.+)|>\s(.+, .+):\s(.+)|>\s(.+, .+):|>\s(.+, .+),\s(.+)|>\s(.+):\s(.+)|>\s(.+, .+)\s(.+)', entry)
+    for group in g.groups():
+      if group is not None:
+        index_content.append(group)
+    return {index_content[0]: index_content[1]} if len(index_content) == 2 else None
+
+
+  def _re_parse_index_alias(self, entry):
+    alias_content = list()
+    g = re.search('<\s(.+): see (.+)|<\s(.+) \(see (.+)\)', entry)
+    for group in g.groups():
+      if group is not None:
+        alias_content.append(group)
+    return {alias_content[0]: alias_content[1]} if len(alias_content) == 2 else None
+
+
+  def _re_parse_mistaken_entry(self, entry):
+    index_content = list()
+    g = re.search('<\s(.+): (.+)', entry)
+    for group in g.groups():
+      if group is not None:
+        index_content.append(group)
+    return {index_content[0]: index_content[1]} if len(index_content) == 2 else None
+
+
+  def parse_index_and_cross_reference(self, candidate_index_raw):
+    index = dict()
+    cross_ref = dict()
     for entry in candidate_index_raw:
-      index_content = []
       if entry.startswith('>'):
-        g = re.search('>\s(.+, .+ \(.+, .+\)):\s(.+)|>\s(.+, .+):\s(.+)|>\s(.+, .+):|>\s(.+, .+),\s(.+)|>\s(.+):\s(.+)|>\s(.+, .+)\s(.+)', entry)
-        for group in g.groups():
-          if group is not None:
-            index_content.append(group)
-        if len(index_content) == 2:
-          index.append({index_content[0]: index_content[1]})
-      elif entry.startswith('<'):
-        print entry
-    return index
+        try:
+          index.update(self._re_parse_index_entry(entry))
+        except:
+          logging.warn('Cannot parse: ' + entry)
+      elif entry.startswith('<') and len(re.findall('\d+', entry)) == 0:
+        cross_ref.update(self._re_parse_index_alias(entry))
+      elif entry.startswith('<') and len(re.findall('\d+', entry)) != 0:
+        index.update(self._re_parse_mistaken_entry(entry))
+    return index, cross_ref
 
 
-  def parse_candidate_data(self, fileinfo):
-    fname = fileinfo[0]
-    election_id = self._get_election_id(fileinfo[2], fileinfo[3])
-    with open(fname, 'r') as f:
-      lines = [line.strip() for line in f]
-      breaks = [i for i,x in enumerate(lines) if '===' in x]
-      electorate_chunks = [lines[breaks[i]-1:breaks[i+1]-1] 
-                           for i in range(len(breaks[:-1]))]
-      electorate_chunks.append(lines[breaks[-1]-1:])
-      electorate_party_dict = self._get_party_dict(electorate_chunk[0])
-      for chunk in electorate_chunks[2:]:
-        electorate_name, _, _ = self._get_electorate_info(chunk)
-        electorate_id = self._get_electorate_id(electorate_name, election_id)
-        sql = """
-          INSERT INTO electorates (election_id, state_code, electorate_name, enrollments, ballots)
-          VALUES (%d, '%s', "%s", %d, %s)
-        """ % (election_id, state_code, electorate_name, electorate_enrolled, electorate_ballots)
-        self.db.execute(sql)
+  def write_candidates_table(self, candidate_index):
+    states_short, states_long = zip(*self.db.fetch('SELECT code, state_name FROM states'))
+    for candidate, elections in candidate_index.iteritems():
+      self.db.execute("""INSERT INTO candidate_names (candidate_name) VALUES ("%s")""" % candidate)
+      for electorates in elections.split(','):
+        electorate_years = electorates.split()
+        state = [el for el in electorate_years if el.upper() in states_short]
+        if len(state) == 1:
+          state = state[0]
+          state_ix = electorate_years.index(state)
+          electorate = ' '.join(electorate_years[:state_ix])
+          state_code = state.upper()
+          years = electorate_years[state_ix+1:]
+        else:
+          state = [state for state in states_long if state in electorates]
+          if len(state) == 1:
+            state = state[0]
+            electorate, allyears = electorates.split(state)
+            state_code = states_short[states_long.index(state)]
+            years = allyears.split()
+            if len(electorate) == 0: electorate = state
+          else:
+            try:
+              state = None
+              electorate, allyears = electorates.split(' ',1)
+              years = allyears.split()
+            except:
+              continue
+        for year in years:
+          if not (year.startswith('1') or year.startswith('2')):
+            continue
+          safe_year = year[:4]
+          was_elected = 1 if year.endswith('*') else 0
+          if electorate == 'Senate':
+            election_id = utils.get_election_id(self.db, safe_year, 'senate')
+            electorate_id = "NULL"
+          else:
+            election_id = utils.get_election_id(self.db, safe_year, 'house')
+            electorate_id = utils.get_electorate_id(self.db, electorate, state_code, election_id) if election_id is not "NULL" else "NULL"
+          candidate_sql = """SELECT id FROM candidate_names WHERE candidate_name = "%s" """ % candidate
+          candidate_name_id = utils.safe_id(self.db.fetch(candidate_sql))
+          insert_str = """INSERT INTO candidates (election_id, electorate_id, candidate_name_id, was_elected)
+                          VALUES ({election_id}, {electorate_id}, "{candidate_name_id}", {was_elected})"""
+          insert_sql = insert_str.format(election_id=election_id, electorate_id=electorate_id, candidate_name_id=candidate_name_id, was_elected=was_elected)
+          self.db.execute(insert_sql)
           
 
 if __name__ == '__main__':
+  logging.basicConfig(level=logging.info)
   table_builder = CandidatesTableBuilder(host='localhost',
                                           user='berian', 
                                           database='elections_australia')
