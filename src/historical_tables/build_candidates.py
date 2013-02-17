@@ -20,22 +20,30 @@ class CandidatesTableBuilder(object):
 
 
   def build(self):
-    self.create_candidates_table()
+    self.create_candidates_tables()
     candidate_files = self.get_candidate_files()
     candidate_index_raw = self.get_candidate_index(candidate_files)
-    candidate_index = self.cross_reference(candidate_index_raw)
-    #print candidate_index
-    #self.write_candidates_table(candidate_index)
+    candidate_index, cross_ref = self.parse_index_and_cross_reference(candidate_index_raw)
+    self.write_candidates_table(candidate_index)
 
 
-  def create_candidates_table(self):
+  def create_candidates_tables(self):
     self.db.execute('DROP TABLE IF EXISTS candidates;')
     self.db.execute("""
      CREATE TABLE candidates (
        id INT NOT NULL AUTO_INCREMENT,
        election_id INT,
-       candidate_name VARCHAR(50),
+       electorate_id INT,
+       candidate_name_id INT,
        was_elected BOOLEAN,
+       PRIMARY KEY(id)
+       );
+     """ )
+    self.db.execute('DROP TABLE IF EXISTS candidate_names;')
+    self.db.execute("""
+     CREATE TABLE candidate_names (
+       id INT NOT NULL AUTO_INCREMENT,
+       candidate_name VARCHAR(50),
        PRIMARY KEY(id)
        );
      """ )
