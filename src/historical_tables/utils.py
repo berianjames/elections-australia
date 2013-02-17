@@ -67,5 +67,3 @@ def get_electorate_names(base_dir):
 
 def get_states():
   return ['act','nsw','sa','wa','qld','tas','nt','vic']
-
-
