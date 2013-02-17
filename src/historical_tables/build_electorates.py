@@ -48,14 +48,6 @@ class ElectoratesTableBuilder(object):
     return int(string.replace(',','').replace('.',''))
 
 
-  def _get_election_id(self, year, chamber):
-    sql = "SELECT id FROM elections WHERE YEAR(election_date) = %s AND chamber = '%s'" % (
-      year, chamber
-      )
-    id_raw = self.db.fetch(sql)
-    return int(id_raw[0][0])
-
-
   def create_electorates_table(self):
     self.db.execute('DROP TABLE IF EXISTS electorates;')
     self.db.execute("""
