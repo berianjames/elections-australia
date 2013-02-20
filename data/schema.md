@@ -11,7 +11,7 @@ This section lists the tables and their functions. Schema for individual tables 
 	<tr><td><b>states</b></td><td>Australian states and territories</td></tr>
 	<tr><td><b>electorates</b></td><td>Electorate names, populations and status in each election</td></tr>
 	<tr><td><b>parties</b></td><td>Names and participation of electoral parties</td></tr>
-	<tr><td><b>candidates</b></td><td>Names and electoral partipication of candidates</td></tr>
+	<tr><td><b>candidacies, candidate_names</b></td><td>Names and electoral partipication of candidates</td></tr>
 	<tr><td><b>counts_house</b></td><td>Raw (undistributed) vote counts for the House of Representatives at electorate level</td></tr>
 	<tr><td><b>results_house</b></td><td>Final (distributed) vote counts for the House of Representatives at electorate level</td></tr>
 	<tr><td><b>counts_senate_candidate</b></td><td>Raw (undistributed) vote counts for the Senate at candidate level</td></tr>
@@ -75,15 +75,29 @@ The <code>parties</code> table list all parties that have participated in state 
 </table>
 
 
-### candidates
+### candidacies, candidate_names
 
-The <code>candidates</code> lists every person every to run for office in an Australian state of federal election.
+The <code>candidate_names</code> tables lists the name of every person ever to run for office in an Australian federal election.
+
+*Possible TODO: Add alias column for duplicate names*
+
 <table>
 	<!--<tr><td></td><td></td></tr>-->
-	<tr><td>id</td><td>primary key, candidate id</td></tr>
-	<tr><td>election_id</td><td>election id</td></tr>
-	<tr><td>party_id</td><td>ID of candidate's electoral party</td></tr>
+	<tr><td>id</td><td>primary key, candidate name id</td></tr>
 	<tr><td>candidate_name</td><td>candidate name</td></tr>
+</table>
+
+An individual can run for office a number of times and the <code>candidacies</code> table records each time this happens.
+
+*TODO: Include bielections and senate special elections*
+
+<table>
+	<!--<tr><td></td><td></td></tr>-->
+	<tr><td>id</td><td>primary key, candidacy id</td></tr>
+	<tr><td>election_id</td><td>election id</td></tr>
+	<tr><td>electorate_id</td><td>electorate id</td></tr>
+	<tr><td>candidate_name_id</td><td>candidate name id</td></tr>
+	<tr><td>was_elected</td><td>binary, was the candidate elected</td></tr>
 </table>
 
 
