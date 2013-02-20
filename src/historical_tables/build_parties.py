@@ -19,7 +19,7 @@ class PartiesTableBuilder(object):
     states = utils.get_states()
     election_years = utils.get_election_years(base_dir=BASE_DIR)
     house_files = utils.get_election_files(BASE_DIR, election_years, 'house', states)
-    senate_files = utils.get_election_files(BASE_DIR, election_years, 'house', states)
+    senate_files = utils.get_election_files(BASE_DIR, election_years, 'senate', states)
     party_dictionary = {}
     for fdata in house_files:
       self.parse_party_data(fdata, party_dictionary)
