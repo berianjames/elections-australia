@@ -66,7 +66,7 @@ class PartiesTableBuilder(object):
         elif entry[0] != '*':
           continue
         split_entry = re.split('\s+',entry)
-        party_code = split_entry[1]
+        party_code = split_entry[1].upper()
         party_name = ' '.join(split_entry[3:])
         if party_name not in party_dictionary:
           party_dictionary[party_name] = [party_code]
