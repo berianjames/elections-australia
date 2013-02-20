@@ -28,12 +28,13 @@ class CandidatesTableBuilder(object):
 
 
   def create_candidates_tables(self):
-    self.db.execute('DROP TABLE IF EXISTS candidates;')
+    self.db.execute('DROP TABLE IF EXISTS candidacies;')
     self.db.execute("""
-     CREATE TABLE candidates (
+     CREATE TABLE candidacies (
        id INT NOT NULL AUTO_INCREMENT,
        election_id INT,
        electorate_id INT,
+       state_code VARCHAR(3),
        candidate_name_id INT,
        was_elected BOOLEAN,
        PRIMARY KEY(id)
@@ -135,14 +136,17 @@ class CandidatesTableBuilder(object):
             if len(electorate) == 0: electorate = state
           else:
             try:
-              state = None
+              state = 'NULL'
+              state_code = 'NULL'
               electorate, allyears = electorates.split(' ',1)
               years = allyears.split()
             except:
               continue
         for year in years:
           if not (year.startswith('1') or year.startswith('2')):
-            continue
+            continue # Catch bad parsing
+          if year.endswith('b') or year.endswith('b*'):
+            continue # Exclude bielections
           safe_year = year[:4]
           was_elected = 1 if year.endswith('*') else 0
           if electorate == 'Senate':
@@ -151,16 +155,17 @@ class CandidatesTableBuilder(object):
           else:
             election_id = utils.get_election_id(self.db, safe_year, 'house')
             electorate_id = utils.get_electorate_id(self.db, electorate, state_code, election_id) if election_id is not "NULL" else "NULL"
+          if election_id is "NULL":
+            logging.warn(candidate+' '+electorate+' '+state+' '+year)
           candidate_sql = """SELECT id FROM candidate_names WHERE candidate_name = "%s" """ % candidate
           candidate_name_id = utils.safe_id(self.db.fetch(candidate_sql))
-          insert_str = """INSERT INTO candidates (election_id, electorate_id, candidate_name_id, was_elected)
-                          VALUES ({election_id}, {electorate_id}, "{candidate_name_id}", {was_elected})"""
-          insert_sql = insert_str.format(election_id=election_id, electorate_id=electorate_id, candidate_name_id=candidate_name_id, was_elected=was_elected)
+          insert_str = """INSERT INTO candidacies (election_id, electorate_id, state_code, candidate_name_id, was_elected)
+                          VALUES ({election_id}, {electorate_id}, '{state_code}', "{candidate_name_id}", {was_elected})"""
+          insert_sql = insert_str.format(election_id=election_id, electorate_id=electorate_id, state_code=state_code, candidate_name_id=candidate_name_id, was_elected=was_elected)
           self.db.execute(insert_sql)
           
 
 if __name__ == '__main__':
-  logging.basicConfig(level=logging.info)
   table_builder = CandidatesTableBuilder(host='localhost',
                                           user='berian', 
                                           database='elections_australia')
