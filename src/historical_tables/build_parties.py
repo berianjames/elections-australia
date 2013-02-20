@@ -53,7 +53,7 @@ class PartiesTableBuilder(object):
 
 
   def parse_party_data(self, fileinfo, party_dictionary):
-    fname = fileinfo[0]
+    fname = fileinfo['fname']
     with open(fname, 'r') as f:
       lines = [line.strip() for line in f]
       breaks = [i for i,x in enumerate(lines) if '===' in x]

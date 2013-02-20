@@ -64,9 +64,9 @@ class ElectoratesTableBuilder(object):
 
 
   def parse_electorate_file(self, fileinfo):
-    fname = fileinfo[0]
-    state_code = fileinfo[1].upper()
-    election_id = utils.get_election_id(self.db, fileinfo[2], 'house')
+    fname = fileinfo['fname']
+    state_code = fileinfo['state'].upper()
+    election_id = utils.get_election_id(self.db, fileinfo['year'], fileinfo['chamber'])
     with open(fname, 'r') as f:
       lines = [line.strip() for line in f]
       breaks = [i for i,x in enumerate(lines) if '===' in x]
