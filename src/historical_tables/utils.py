@@ -24,6 +24,25 @@ def get_electorate_id(db, electorate, state, election_id):
   return safe_id(id_raw)
 
 
+def get_candidate_name_id(db, full_name):
+  name_parts = full_name.split()
+  last_name = name_parts[-1]
+  first_name = name_parts[0] if name_parts[0] != 'Hon' else name_parts[1]
+  sql = """SELECT id FROM candidate_names WHERE candidate_name LIKE "%s%%" AND candidate_name LIKE "%%%s%%" """ % (
+    last_name, first_name
+    )
+  id_raw = db.fetch(sql)
+  return safe_id(id_raw)
+
+
+def get_candidacy_id(db, election_id, electorate_id, candidate_name_id):
+  sql = """SELECT id FROM candidacies WHERE election_id = %s AND electorate_id = %s AND candidate_name_id = %s""" % (
+    election_id, electorate_id, candidate_name_id
+    )
+  id_raw = db.fetch(sql)
+  return safe_id(id_raw)
+
+
 def get_election_years(base_dir):
   election_years = []
   for root, _, _ in os.walk(base_dir):
